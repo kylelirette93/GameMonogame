@@ -8,29 +8,70 @@ using System.Threading.Tasks;
 
 namespace GameMonogame
 {
-    public class GameEntity
+    internal class GameEntity
     {
+        public Texture2D Sprite { get { return sprite; } }
         protected Texture2D sprite;
         protected Vector2 position;
-        protected Game1 gameManager;
-        protected GraphicsDeviceManager graphics;
-        protected SpriteBatch spriteBatch;
+        public Vector2 Position { get { return position; } }
+        protected GameManager gameManager;
+
         protected Rectangle collider;
+        public Rectangle Collider { get { return collider; } }
         protected float movementSpeed;
         protected Vector2 movementDirection;
-        public float deltaTime;
+        Vector2 previousPosition;
+        Texture2D _colliderTexture;
 
-        public GameEntity(Game1 game)
+
+        public GameEntity(GameManager game, Vector2 initialPosition)
         {
             gameManager = game;
-            spriteBatch = game.SpriteBatch;
-            movementDirection = new Vector2(-10, 0);
-            deltaTime = ElapsedGameTime.Milliseconds * 0.001f;
+            position = initialPosition;
+            movementDirection = Vector2.Zero;
+            _colliderTexture = new Texture2D(gameManager.GraphicsDevice, 1, 1);
+            _colliderTexture.SetData(new Color[] { Color.Transparent });
+            if (sprite != null)
+            {
+                collider = new Rectangle((int)position.X, (int)position.Y, sprite.Width, sprite.Height);
+            }
         }
 
-        protected virtual void Update(float deltaTime)
+        public virtual void Update(float deltaTime)
         {
-            position += movementDirection * movementSpeed;
+            previousPosition = position;
+
+            position += movementDirection * deltaTime;
+   
+            if (position != previousPosition && sprite != null)
+            {
+               collider.X = (int)position.X;
+               collider.Y = (int)position.Y;
+            }
+        }
+
+        public void DrawCollider(Texture2D colliderTexture, Rectangle collider)
+        {
+            gameManager.SpriteBatch.Draw(colliderTexture, collider, Color.Red);
+        }
+
+
+        public virtual void OnCollide(GameEntity otherEntity)
+        {
+            if (this is Player && otherEntity is Pipe)
+            {
+                gameManager.GameOver();
+            }
+        }
+
+        public virtual void Draw(GameTime gameTime) 
+        {
+            DrawCollider(_colliderTexture, collider);
+            if (sprite != null) 
+            {
+                gameManager.SpriteBatch.Draw(sprite, new Rectangle((int)position.X, (int)position.Y,
+                    sprite.Width, sprite.Height), Color.White);
+            }
         }
     }
-}
+    }

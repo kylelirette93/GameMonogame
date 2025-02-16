@@ -11,44 +11,27 @@ using Microsoft.Xna.Framework.Content;
 
 namespace GameMonogame
 {
-    internal class ScoreManager : GameComponent
+    public class ScoreManager
     {
-        int _score;
+        private int _score;
         public int Score { get { return _score; } set { _score = value; } }
-        private SoundEffect scoreSound;
+        private GameManager gameManager;
+        private bool hasScored = false;
 
-        public ScoreManager(Game game) : base(game)
+        public ScoreManager(GameManager game)
         {
-            Score = 0;
-            scoreSound = game.Content.Load<SoundEffect>("scoreSound");
+            gameManager = game;
         }
-
-        
 
         public void AddScore(int score)
         {
-            Score += score;
-            scoreSound.Play();
-            return;
+            _score += score;          
+            SoundManager.PlaySound("scoreSound");
         }
 
         public void ResetScore()
         {
-            Score = 0;
-        }
-
-        public void Draw(SpriteBatch spriteBatch, SpriteFont font)
-        {
-            if (spriteBatch == null || font == null)
-            {
-                return; 
-            }
-
-            // Draw the score to corner of the screen.
-            Vector2 position = new Vector2(0, 0);
-            Vector2 xOffset = new Vector2(2, 2);
-            spriteBatch.DrawString(font, "Score: " + Score, position + xOffset, Color.Black);
-            spriteBatch.DrawString(font, "Score: " + Score, position, Color.White);
+            _score = 0;
         }
     }
 }

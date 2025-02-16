@@ -1,68 +1,65 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SharpDX.Direct3D9;
-using System;
 
 
 namespace GameMonogame
 {
-    internal class Player : GameEntity
+    public class Player : GameEntity
     {
+        // Physics variables.
         private float flapForce = -40.0f;
         private float gravity = 12.0f;
         private float maxGravity = 12.0f;
         private float gravityDownSpeed = 14f;
+
+        // Input variables.
         private bool isJumpPressed;
         private bool canJump;
         private KeyboardState previousState;
-        private SoundEffect flapSound;
+        private KeyboardState currentState;
 
+        // Rotation variables.
         private float rotation;
-        // Max tilt angle when flapping.
         private float flapRotation = 0.90f;
-        // Max tilt angle when falling.
         private float fallRotation = 1.57f;
-        // Speed of which the sprite returns to normal.
         private float gravityRotationSpeed = 0.5f;
 
+        // Collider variables.
         private Texture2D playerColliderTexture;
+        int colliderXOffset = 20;
+        int colliderYOffset = 16;
 
 
         public Player(GameManager game, Vector2 initialPosition) : base(game, initialPosition)
         {
+            // Initialize player variables.
             gameManager = game;
             canJump = true;
             rotation = 0.0f;
             movementDirection = new Vector2(0, gravityDownSpeed);
             sprite = gameManager.Content.Load<Texture2D>("player_sprite");
-            flapSound = gameManager.Content.Load<SoundEffect>("flap");
             playerColliderTexture = new Texture2D(gameManager.GraphicsDevice, 1, 1);
             playerColliderTexture.SetData(new Color[] { Color.Transparent });
-            collider = new Rectangle((int)initialPosition.X, (int)initialPosition.Y, sprite.Width, sprite.Height);
+            collider = new Rectangle((int)initialPosition.X - colliderXOffset, (int)initialPosition.Y - colliderYOffset, sprite.Width / 2, sprite.Height / 2);
         }
 
         public override void Update(float deltaTime)
         {
             base.Update(deltaTime);
-            AdjustPlayerCollider();
+            UpdatePlayerCollider();
 
-            KeyboardState state = Keyboard.GetState();
+            currentState = Keyboard.GetState();
             if (canJump)
             {
-                if (state.IsKeyDown(Keys.Space))
+                if (currentState.IsKeyDown(Keys.Space))
                 {
                     if (!isJumpPressed)
                     {
                         // Apply forward rotation when jumping.
-
-
                         gravity = flapForce;
                         isJumpPressed = true;
-
-                        flapSound.Play();
-
+                        SoundManager.PlaySound("flapSound");
                         rotation = flapRotation;
                     }
                 }
@@ -70,6 +67,7 @@ namespace GameMonogame
                 {
                     isJumpPressed = false;
 
+                    // Give's the bird a rotating effect when falling.
                     if (rotation > 0)
                     {
                         rotation -= gravityRotationSpeed * deltaTime;
@@ -77,28 +75,35 @@ namespace GameMonogame
                     }
                 }
             }
-
+            // Apply constant gravity to player.
             position.Y += gravity * deltaTime;
+
+            if (gameManager.CurrentState != GameManager.GameState.GameOver) 
+            {
+                // Check if player has collided with the ground or ceiling.
+                if (position.Y > gameManager.Graphics.PreferredBackBufferHeight || position.Y < 0)
+                {
+                    gameManager.GameOver();
+                    gameManager.CurrentState = GameManager.GameState.GameOver;
+                }
+            }
 
             if (gravity < maxGravity)
             {
                 gravity += deltaTime * gravityDownSpeed;
             }
-
-            previousState = state;  
+            previousState = currentState;  
         }
-        public void AdjustPlayerCollider()
+        private void UpdatePlayerCollider()
         {
-            // Offset collider to compensate for rotation.
-            collider.Width = sprite.Width / 2;
-            collider.Height = sprite.Height / 2;
-            collider.X -= 20;
-            collider.Y -= 16;
+            // Update collider position based on player's position.
+            collider.X = (int)position.X - colliderXOffset;
+            collider.Y = (int)position.Y - colliderYOffset;
         }
 
         public void Die()
         {
-            // Have player fall off screen.
+            // Have player fall off screen on death.
             movementDirection = new Vector2(0, gravityDownSpeed);
             rotation = fallRotation;
             canJump = false;
@@ -106,7 +111,6 @@ namespace GameMonogame
 
         public override void Draw(GameTime gameTime)
         {
-            DrawCollider(playerColliderTexture, collider);
             if (sprite != null)
             {
                 // Draw the sprite with rotation applied.
@@ -116,7 +120,7 @@ namespace GameMonogame
                     null,
                     Color.White,
                     rotation, 
-                    // Center the rotation on the sprite
+                    // Center the rotation on the sprite.
                     new Vector2(sprite.Width / 2, sprite.Height / 2), 
                     SpriteEffects.None,
                     0f

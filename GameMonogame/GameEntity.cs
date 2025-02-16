@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 
 namespace GameMonogame
 {
-    internal class GameEntity
+    public class GameEntity
     {
-        public Texture2D Sprite { get { return sprite; } }
+        // Protected variables that game entities can access.
         protected Texture2D sprite;
         protected Vector2 position;
-        public Vector2 Position { get { return position; } }
-        protected GameManager gameManager;
 
-        protected Rectangle collider;
+        // Property to access collider in pipe manager.
         public Rectangle Collider { get { return collider; } }
+        protected Rectangle collider;
         protected float movementSpeed;
         protected Vector2 movementDirection;
-        Vector2 previousPosition;
-        Texture2D _colliderTexture;
+        protected Vector2 previousPosition;
+        protected Texture2D _colliderTexture;
+        protected GameManager gameManager;
 
 
         public GameEntity(GameManager game, Vector2 initialPosition)
@@ -39,6 +39,7 @@ namespace GameMonogame
 
         public virtual void Update(float deltaTime)
         {
+            // Default update for game entities.
             previousPosition = position;
 
             position += movementDirection * deltaTime;
@@ -52,7 +53,7 @@ namespace GameMonogame
 
         public void DrawCollider(Texture2D colliderTexture, Rectangle collider)
         {
-            gameManager.SpriteBatch.Draw(colliderTexture, collider, Color.Red);
+            gameManager.SpriteBatch.Draw(colliderTexture, collider, Color.Transparent);
         }
 
 
@@ -66,6 +67,7 @@ namespace GameMonogame
 
         public virtual void Draw(GameTime gameTime) 
         {
+            // Draw the game entities collider.
             DrawCollider(_colliderTexture, collider);
             if (sprite != null) 
             {

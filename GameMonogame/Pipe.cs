@@ -7,21 +7,27 @@ using System;
 
 namespace GameMonogame
 {
-    internal class Pipe : GameEntity
+    public class Pipe : GameEntity
     {
-        int gapSize = 80;
+        // Variables for updating pipe colliders.
+        private int gapSize = 80;
+        private int pipeHeight = 440;
+        private int screenHeight;
+        private int gapY;
+
         public Rectangle topOfPipe { get { return topPipeRect; } }
         Rectangle topPipeRect;
         public Rectangle bottomOfPipe { get { return bottomPipeRect; } }
+        Rectangle bottomPipeRect;
 
         // To determine if player passed a pipe.
         public bool HasPassed { get; set; } = false;
-        Rectangle bottomPipeRect;
+        // To determine if player scored a point with a pipe.
+        public bool HasScored { get; set; } = false;
+        
         Texture2D topColliderTexture;
         Texture2D bottomColliderTexture;
-        int pipeHeight = 440;
-        int screenHeight;
-        int gapY;
+        
 
         public Pipe(GameManager game, Vector2 initialPosition) : base(game, initialPosition)
         {
@@ -40,6 +46,12 @@ namespace GameMonogame
         {
             base.Update(deltaTime);
             UpdateColliders();
+            // Check if pipe has passed the screen.
+            if (position.X + sprite.Width < 0)
+            {
+                // Console.WriteLine($"Pipe passed: position.X = {position.X}, sprite.Width = {sprite.Width}");
+                HasPassed = true;
+            }
         }
 
         private void UpdateColliders()

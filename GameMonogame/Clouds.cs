@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace GameMonogame
 {
-    internal class Clouds : GameEntity
+    public class Clouds : GameEntity
     {
         private int width;
         private int height;

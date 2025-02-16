@@ -29,27 +29,27 @@
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:flap.wav
+/build:flap.wav;flapSound.wav
 
 #begin Game.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Game.spritefont
+/build:Game.spritefont;gameFont.spritefont
 
 #begin Instruction.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Instruction.spritefont
+/build:Instruction.spritefont;instructionFont.spritefont
 
 #begin lose.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:lose.wav
+/build:lose.wav;loseSound.wav
 
 #begin pipe_sprite.png
 /importer:TextureImporter
@@ -80,11 +80,11 @@
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Score.spritefont
+/build:Score.spritefont;scoreFont.spritefont
 
-#begin scoreSound.wav
+#begin score.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
-/build:scoreSound.wav
+/build:score.wav;scoreSound.wav
 
